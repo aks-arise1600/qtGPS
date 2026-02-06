@@ -6,6 +6,7 @@ gpsWindow::gpsWindow(QWidget *parent)
     , ui(new Ui::gpsWindow)
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/icons/compass.png"));
 
     obj_gps = new GPS_Listener(this);
     connect(obj_gps,SIGNAL(si_Positions(gps_pos)),this, SLOT(sl_Positions(gps_pos)));

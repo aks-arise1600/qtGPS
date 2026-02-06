@@ -29,4 +29,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 DISTFILES += \
-    android/AndroidManifest.xml
+    android/AndroidManifest.xml \
+    android/src/org/example/gps/NmeaListener.java
+
+RESOURCES += \
+    icons_resources.qrc
