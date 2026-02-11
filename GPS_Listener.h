@@ -12,51 +12,7 @@
 #include <jni.h>
 #include <QJniObject>
 #include <QTimer>
-
-struct gps_pos
-{
-    double lat;
-    double lon;
-    double speed;
-    double acc;
-};
-
-struct SatelliteInfo
-{
-    QString constellation;  // GPS / GLONASS / GALILEO / BEIDOU
-    int prn = 0;
-    int elevation = 0;      // degrees
-    int azimuth = 0;        // degrees
-    int snr = 0;            // dB-Hz
-};
-
-struct GgaData
-{
-    QString utcTime;
-    double latitude = 0.0;
-    double longitude = 0.0;
-    int fixQuality = 0;
-    int satellites = 0;
-    double hdop = 0.0;
-    double altitude = 0.0;
-    bool valid = false;
-};
-
-struct RmcData
-{
-    QString talker;   // GP or GN
-    QString utcTime;
-    QChar status;     // A or V
-    double latitude = 0.0;
-    double longitude = 0.0;
-    double speedKmh = 0.0;
-    double course = 0.0;
-    QString date;
-    QChar mode;       // A, D, N
-    bool valid = false;
-};
-
-
+#include <StructData.h>
 
 class GPS_Listener : public QObject
 {
@@ -65,8 +21,8 @@ public:
     GPS_Listener(QObject *parent = nullptr);
     ~GPS_Listener();
 private slots:
-    void positionUpdated(const QGeoPositionInfo &info);
-    void onError(QGeoPositionInfoSource::Error error);
+    void sl_positionUpdated(const QGeoPositionInfo &info);
+    void sl_onError(QGeoPositionInfoSource::Error error);
     void sl_startNmeaListener();
     void sl_stopNmeaListener();
 public slots:
@@ -74,18 +30,34 @@ public slots:
 signals:
     void si_error_msg(QString);
     void si_Positions(gps_pos  );
+    void si_gnAccuracy(double ,double ,double ,double );
+    void si_ggaData(GgaData);
+    void si_rmcData(RmcData);
+    void si_mtkPos1(PmtkPos1);
+    void si_mtkPos2(PmtkPos2);
+    void si_mtkAgc(PmtkAgc);
+    void si_gllData(GllData);
+    void si_vtgData(VtgData);
+    void si_skyPlot(GnssSystem, QVector<SkySat>);
 private:
     QGeoPositionInfoSource *source;
-    QString gpsLogFile();
-    QJniObject m_nmeaListener;   // 🔑 keep Java object alive
-    double parseLatLon(const QString &value, const QString &dir);
+    QString m_gpsLogFile();
+    QJniObject m_nmeaListener;   //  keep Java object alive
+    double m_parseLatLon(const QString &value, const QString &dir);
     QMap<QString, QVector<SatelliteInfo>> gsvAccumulator;
     QMap<QString, int> gsvExpected;
-    void handleGSV(const QString &nmea);
-    QVector<SatelliteInfo> parseGSV(const QString &nmea);
-    GgaData parseGGA(const QString &nmea);
-    RmcData parseRMC(const QString &nmea);
-
+    QString m_GetConstellationString(QString talker_id);
+    GnssSystem m_GetConstellationClassId(QString conString);
+    void m_handleGSV(const QString &nmea);
+    QVector<SatelliteInfo> m_parseGSV(const QString &nmea);
+    GgaData m_parseGGA(const QString &nmea);
+    RmcData m_parseRMC(const QString &nmea);
+    PmtkPos1 m_parsePmtkPos1(const QString &nmea);
+    PmtkPos2 m_parsePmtkPos2(const QString &nmea);
+    PmtkAgc m_parsePmtkAgc(const QString &nmea);
+    GllData m_parseGLL(const QString &nmea);
+    VtgData m_parseVTG(const QString &nmea);
+    GsaData m_parseGSA(const QString &nmea);
 };
 
 #endif // GPS_LISTENER_H

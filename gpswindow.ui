@@ -6,27 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>437</height>
+    <width>562</width>
+    <height>584</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>gpsWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="spacing">
-     <number>12</number>
-    </property>
-    <property name="leftMargin">
-     <number>12</number>
-    </property>
-    <property name="topMargin">
-     <number>12</number>
-    </property>
-    <property name="rightMargin">
-     <number>12</number>
-    </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QPushButton" name="pushButton_Close">
       <property name="minimumSize">
@@ -47,132 +35,1027 @@
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="frame">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>150</height>
-       </size>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QTabWidget::pane {
+    border: 1px solid black;
+}
+
+QTabWidget::tab-bar {
+    width: 16777215px;
+    border: 1px solid black;
+	/*alignment: center;*/
+}
+QTabBar::tab:selected {
+    background: rgb(160, 240, 240);
+    color: blue;
+}
+
+QTabBar::tab:!selected {
+    background: silver;
+}
+
+QTabBar::tab:!selected:hover {
+    background: #999;
+}</string>
       </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>150</height>
-       </size>
+      <property name="tabPosition">
+       <enum>QTabWidget::TabPosition::North</enum>
       </property>
-      <property name="frameShape">
-       <enum>QFrame::Shape::StyledPanel</enum>
+      <property name="currentIndex">
+       <number>1</number>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Shadow::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Lat :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="label_speed">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Long :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_Long">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Speed (km/h) :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_Lat">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Accuracy(m) :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="label_acc">
-         <property name="text">
-          <string>00</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>GGA,GN,RMC Data</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Geo-Position-Info</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_QgpsPos">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>4</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="1" column="1">
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Speed (km/h)</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Accuracy (m)</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>220</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>RMC Data</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_rmc">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>9</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Date Time (UTC)</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Talker</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Speed (km/h)</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>course (deg)</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>Status</string>
+              </property>
+             </item>
+             <item row="7" column="0">
+              <property name="text">
+               <string>Mode</string>
+              </property>
+             </item>
+             <item row="8" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QGroupBox" name="groupBox_9">
+          <property name="title">
+           <string>GLL Data</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_gll">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>7</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>UTC Time</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Talker</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Status</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>Mode</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>220</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>GGA Data</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_gga">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>9</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>UTC Time</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Talker</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Fix Quality</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>Satellites</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>Hdop</string>
+              </property>
+             </item>
+             <item row="7" column="0">
+              <property name="text">
+               <string>Altitude</string>
+              </property>
+             </item>
+             <item row="8" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>GN-Accuracy</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_GNACCURACY">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>4</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Horizontal accuracy (m)</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Vertical accuracy (m)</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Speed accuracy (mps)</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Bearing accuracy (deg)</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QGroupBox" name="groupBox_8">
+          <property name="title">
+           <string>VTG Data</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_vtg">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>5</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Talker</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Course (deg)</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Speed (km/h)</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Mode</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>MediaTek Data</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>MTK-POS2</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_mtkpos2">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>9</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Date Time (UTC)</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="1" column="1">
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Altitude</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Satellites</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>Fix Type</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>Clock Id</string>
+              </property>
+             </item>
+             <item row="7" column="0">
+              <property name="text">
+               <string>Clock Counter</string>
+              </property>
+             </item>
+             <item row="8" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>MTK-POS1</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_mtkpos1">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>7</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>Date Time (UTC)</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>Latitude</string>
+              </property>
+             </item>
+             <item row="1" column="1">
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>Longitude</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>Altitude</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>Horizontal Velocity (m/s)</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>Vertical Velocity (m/s)</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="title">
+           <string>MTK-AGC</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QTableWidget" name="tableWidget_mtkagc">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>8</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <item row="0" column="0">
+              <property name="text">
+               <string>UTC Time</string>
+              </property>
+             </item>
+             <item row="1" column="0">
+              <property name="text">
+               <string>AGC level (RF chain 1)</string>
+              </property>
+             </item>
+             <item row="2" column="0">
+              <property name="text">
+               <string>AGC level (RF chain 2)</string>
+              </property>
+             </item>
+             <item row="3" column="0">
+              <property name="text">
+               <string>AGC level (RF chain 3)</string>
+              </property>
+             </item>
+             <item row="4" column="0">
+              <property name="text">
+               <string>AGC level (RF chain 4)</string>
+              </property>
+             </item>
+             <item row="5" column="0">
+              <property name="text">
+               <string>RF State</string>
+              </property>
+             </item>
+             <item row="6" column="0">
+              <property name="text">
+               <string>AVG Signal</string>
+              </property>
+             </item>
+             <item row="7" column="0">
+              <property name="text">
+               <string>Valid</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Sky View (GSV)</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="skyPlotLayout">
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Raw Data</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPlainTextEdit" name="plainTextEdit">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

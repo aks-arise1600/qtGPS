@@ -10,15 +10,19 @@ CONFIG += c++17
 
 SOURCES += \
     GPS_Listener.cpp \
+    gsv_form.cpp \
     main.cpp \
     gpswindow.cpp
 
 HEADERS += \
     GPS_Listener.h \
-    gpswindow.h
+    StructData.h \
+    gpswindow.h \
+    gsv_form.h
 
 FORMS += \
-    gpswindow.ui
+    gpswindow.ui \
+    gsv_form.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
