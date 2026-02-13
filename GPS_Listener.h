@@ -42,6 +42,7 @@ signals:
 private:
     QGeoPositionInfoSource *source;
     QString m_gpsLogFile();
+    QString strLogFile;
     QJniObject m_nmeaListener;   //  keep Java object alive
     double m_parseLatLon(const QString &value, const QString &dir);
     QMap<QString, QVector<SatelliteInfo>> gsvAccumulator;
@@ -55,6 +56,7 @@ private:
     PmtkPos1 m_parsePmtkPos1(const QString &nmea);
     PmtkPos2 m_parsePmtkPos2(const QString &nmea);
     PmtkAgc m_parsePmtkAgc(const QString &nmea);
+    PmtkMpe1 m_parsePmtkMpe1(const QString &nmea);
     GllData m_parseGLL(const QString &nmea);
     VtgData m_parseVTG(const QString &nmea);
     GsaData m_parseGSA(const QString &nmea);

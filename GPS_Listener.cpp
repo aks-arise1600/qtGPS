@@ -2,6 +2,8 @@
 
 static GPS_Listener *g_gpsListener = nullptr;
 
+QString doc_dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)+"/GPS_Log";
+
 extern "C"
     JNIEXPORT void JNICALL
     Java_org_example_gps_NmeaListener_nativeOnNmea(
@@ -48,6 +50,8 @@ GPS_Listener::GPS_Listener(QObject *parent)
     connect(source, &QGeoPositionInfoSource::errorOccurred, this, &GPS_Listener::sl_onError);
     source->startUpdates();
     QTimer::singleShot(5000,this,SLOT(sl_startNmeaListener()));
+
+    strLogFile = m_gpsLogFile();
 }
 
 GPS_Listener::~GPS_Listener()
@@ -76,7 +80,7 @@ void GPS_Listener::sl_positionUpdated(const QGeoPositionInfo &info)
 
 
 
-    QFile file(m_gpsLogFile());
+    QFile file(strLogFile);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
         qWarning() << "Failed to open GPS log file";
@@ -101,11 +105,12 @@ void GPS_Listener::sl_onError(QGeoPositionInfoSource::Error error)
 }
 QString GPS_Listener::m_gpsLogFile()
 {
-    QString dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    QDir().mkpath(dir);  // ensure directory exists
-    emit si_error_msg(dir + "/gps_log.txt");
-    return dir + "/gps_log.txt";
+    QDir().mkpath(doc_dir);  // ensure directory exists
+    QString absoluteFname = doc_dir + "/"+QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss")+"_gps_log.txt";
+    emit si_error_msg(absoluteFname);
+    qDebug()<<"absoluteFname"<<absoluteFname;
+    return absoluteFname;
 }
 
 void GPS_Listener::sl_startNmeaListener()
@@ -164,31 +169,7 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
      *
      *  **/
     // Example filtering
-    if (nmea_data.startsWith("$PMTKLCPOS1"))
-    {
-        qDebug() << "MTK POS1 FIX:" << nmea_data;
-        PmtkPos1 mtkP1 = m_parsePmtkPos1(nmea_data);
-        qDebug() << "  Lat:" << mtkP1.lat << "Lon:" << mtkP1.lon
-                 << "Alt:"<<mtkP1.alt << "h_velocity:"<<mtkP1.hVelocity
-                 << "v_velocity:"<<mtkP1.vVelocity << "Valid:"<<mtkP1.valid;
-
-
-        emit si_mtkPos1(mtkP1);
-
-    }
-    else if (nmea_data.startsWith("$PMTKLCPOS2"))
-    {
-        qDebug() << "MTK POS2:"<< nmea_data;
-        PmtkPos2 mtkP2 = m_parsePmtkPos2(nmea_data);
-        qDebug() << "  Lat:" << mtkP2.lat << "Lon:"  << mtkP2.lon
-                 << "Alt:"<<mtkP2.alt << "fixType:" << mtkP2.fixType
-                 << "fwOrClockId:"<<mtkP2.fwOrClockId << "clockCounter:" << mtkP2.clockCounter
-                 << "satellites:"<<mtkP2.satellites << "Valid:"<<mtkP2.valid;
-
-
-        emit si_mtkPos2(mtkP2);
-    }
-    else if (nmea_data.startsWith("$GNACCURACY"))
+    if (nmea_data.startsWith("$GNACCURACY"))
     {
         qDebug() << "ACCURACY :"<< nmea_data;
         QString line = nmea_data;
@@ -218,7 +199,7 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
         qDebug() << "GGA:" << nmea_data;
         auto gga = m_parseGGA(nmea_data);
 
-        qDebug() << "  UTC:" << gga.utcTime
+        qDebug() << "  Time:" << gga.utcTime
                  << "Talker:" << gga.talker
                  << "Lat:" << gga.lat
                  << "Lon:" << gga.lon
@@ -237,7 +218,7 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
 
         auto rmc = m_parseRMC(nmea_data);
 
-        qDebug() << "  UTC:" << rmc.utc
+        qDebug() << "  DateTime:" << rmc.utc
                  << "Talker:" << rmc.talker
                  << "Lat:" << rmc.latitude
                  << "Lon:" << rmc.longitude
@@ -250,14 +231,13 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
         emit si_rmcData(rmc);
 
     }
-    else if (nmea_data.startsWith("$P"))
+    else if (nmea_data.startsWith("$PMTK"))
     {
         if (nmea_data.startsWith("$PMTKAGC"))
         {
-            qDebug() << "MTK Proprietary NMEA:" << nmea_data;
-            qDebug() << "  AGC:";
+            qDebug() << "MTK AGC:" << nmea_data;
             PmtkAgc agc = m_parsePmtkAgc(nmea_data);
-            qDebug() << "    UTC:" << agc.utc
+            qDebug() << "    Time:" << agc.utc
                      << "agcLevel_rfCh1:" << agc.agcLevel_rfCh1
                      << "agcLevel_rfCh2:" << agc.agcLevel_rfCh2
                      << "agcLevel_rfCh3:" << agc.agcLevel_rfCh3
@@ -267,6 +247,40 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
                      << "Valid:" << agc.valid;
 
             emit si_mtkAgc(agc);
+        }
+        else if (nmea_data.startsWith("$PMTKLCPOS1"))
+        {
+            qDebug() << "MTK POS1 FIX:" << nmea_data;
+            PmtkPos1 mtkP1 = m_parsePmtkPos1(nmea_data);
+            qDebug() << "  Lat:" << mtkP1.lat << "Lon:" << mtkP1.lon
+                     << "Alt:"<<mtkP1.alt << "h_velocity:"<<mtkP1.hVelocity
+                     << "v_velocity:"<<mtkP1.vVelocity << "Valid:"<<mtkP1.valid
+                     << "DateTime:"<< mtkP1.utc;
+
+            emit si_mtkPos1(mtkP1);
+        }
+        else if (nmea_data.startsWith("$PMTKLCPOS2"))
+        {
+            qDebug() << "MTK POS2:"<< nmea_data;
+            PmtkPos2 mtkP2 = m_parsePmtkPos2(nmea_data);
+            qDebug() << "  Lat:" << mtkP2.lat << "Lon:"  << mtkP2.lon
+                     << "Alt:"<<mtkP2.alt << "fixType:" << mtkP2.fixType
+                     << "fwOrClockId:"<<mtkP2.fwOrClockId << "clockCounter:" << mtkP2.clockCounter
+                     << "satellites:"<<mtkP2.satellites << "Valid:"<<mtkP2.valid
+                     << "DateTime:"<< mtkP2.utc;
+
+            emit si_mtkPos2(mtkP2);
+        }
+        else if(nmea_data.startsWith("$PMTKMPE1"))
+        {
+            qDebug() << "MTK MPE1:"<< nmea_data;
+            PmtkMpe1 mpe1 = m_parsePmtkMpe1(nmea_data);
+            qDebug() << "  heading:" << mpe1.heading << "pitch:"  << mpe1.pitch
+                     << "roll:"<<mpe1.roll << "yaw:" << mpe1.yaw
+                     << "vx:"<<mpe1.vx << "vy:"<<mpe1.vy << "vz:"<<mpe1.vz
+                     << "ax:"<<mpe1.ax << "ay:"<<mpe1.ay << "az:"<<mpe1.az
+                     << "gx:"<<mpe1.gx << "gy:"<<mpe1.gy << "s1:"<< mpe1.s1
+                     << "s2:"<< mpe1.s2 << "s3:"<< mpe1.s3 << "s4:"<< mpe1.s4;
         }
         else
             qDebug() << "Proprietary NMEA:" << nmea_data.trimmed();
@@ -322,7 +336,26 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
     }
 
     if(nmea_data.size())
+    {
         emit si_error_msg(nmea_data);
+         QFile file(strLogFile);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Append))
+        {
+            qWarning() << "Failed to open file:" << file.errorString();
+            return;
+        }
+
+        QByteArray msgData = nmea_data.toLatin1();
+        msgData.append('\n');
+        qint64 written = file.write(msgData);
+
+        if (written != msgData.size()) {
+            qWarning() << "Incomplete write:" << written << "bytes";
+        }
+
+        file.flush();
+        file.close();
+    }
 }
 double GPS_Listener::m_parseLatLon(const QString &value, const QString &dir)
 {
@@ -358,6 +391,8 @@ QString GPS_Listener::m_GetConstellationString(QString talker_id)
     else if (talker_id == "GL") constellation = "GLONASS";
     else if (talker_id == "GA") constellation = "GALILEO";
     else if (talker_id == "GB" || talker_id == "BD") constellation = "BEIDOU";
+    else if (talker_id == "GQ") constellation = "QZSS";
+    else if (talker_id == "GI") constellation = "IRNSS/NAVIC";
     else constellation = "MIXED";
 
     return constellation;
@@ -373,6 +408,10 @@ GnssSystem GPS_Listener::m_GetConstellationClassId(QString conString)
         return GnssSystem::GLONASS;
     else if(conString == "GALILEO")
         return GnssSystem::GALILEO;
+    else if(conString == "QZSS")
+        return GnssSystem::QZSS;
+    else if(conString == "IRNSS/NAVIC")
+        return GnssSystem::IRNSS_NAVIC;
 
     return GnssSystem::UNKNOWN;
 }
@@ -490,7 +529,9 @@ GgaData GPS_Listener::m_parseGGA(const QString &nmea)
         return gga;
 
     gga.talker     = m_GetConstellationString( f_list[0].mid(1, 2)); // GP / GN
-    gga.utcTime    = QTime::fromString(f_list[1], "hhmmss.zzz");//f_list[1];
+    //gga.utcTime    = QTime::fromString(f_list[1], "hhmmss.zzz");//f_list[1];
+    QTime tmpTime  = QTime::fromString(f_list[1], "hhmmss.zzz");
+    gga.utcTime    = tmpTime.addSecs(5 * 3600 + 30 * 60);
     gga.fixQuality = f_list[6].toInt();
     gga.satellites = f_list[7].toInt();
     gga.hdop       = f_list[8].isEmpty() ? 0.0 : f_list[8].toDouble();
@@ -533,7 +574,10 @@ RmcData GPS_Listener::m_parseRMC(const QString &nmea)
     QDate date(year, month, day);
 
     if (time.isValid() && date.isValid())
-        rmc.utc = QDateTime(date, time);
+    {
+        //rmc.utc = QDateTime(date, time);
+        rmc.utc = QDateTime(date, time, QTimeZone::UTC).toTimeZone(QTimeZone("Asia/Kolkata"));
+    }
 
 
     rmc.status  = f_list[2].isEmpty() ? 'V' : f_list[2][0];
@@ -571,7 +615,9 @@ PmtkPos1 GPS_Listener::m_parsePmtkPos1(const QString &nmea)
         return pos1;
 
     // UTC time: yyyyMMddhhmmss.zzz
-    pos1.utc = QDateTime::fromString(f_list[1], "yyyyMMddhhmmss.zzz");
+
+    QDateTime tmpDT = QDateTime::fromString(f_list[1], "yyyyMMddhhmmss.zzz");
+    pos1.utc = QDateTime(tmpDT.date(), tmpDT.time(), QTimeZone::UTC).toTimeZone(QTimeZone("Asia/Kolkata"));
 
     pos1.lat = f_list[2].toDouble();
     pos1.lon = f_list[3].toDouble();
@@ -603,7 +649,8 @@ PmtkPos2 GPS_Listener::m_parsePmtkPos2(const QString &nmea)
     if (f_list.size() < 9)
         return pos2;
 
-    pos2.utc = QDateTime::fromString(f_list[1], "yyyyMMddhhmmss.zzz");
+    QDateTime tmpDT = QDateTime::fromString(f_list[1], "yyyyMMddhhmmss.zzz");
+    pos2.utc = QDateTime(tmpDT.date(), tmpDT.time(), QTimeZone::UTC).toTimeZone(QTimeZone("Asia/Kolkata"));;
 
     pos2.lat = f_list[2].toDouble();
     pos2.lon = f_list[3].toDouble();
@@ -636,7 +683,9 @@ PmtkAgc GPS_Listener::m_parsePmtkAgc(const QString &nmea)
     if (f_list.size() < 11)
         return agc;
 
-    agc.utc = QTime::fromString(f_list[1], "hhmmss.zzz");
+    QTime tmpTime = QTime::fromString(f_list[1], "hhmmss.zzz");
+    agc.utc  = tmpTime.addSecs(5 * 3600 + 30 * 60);
+    //agc.utc = QTime::fromString(f_list[1], "hhmmss.zzz");
 
     // AGC values (number may vary by chipset)
     agc.agcLevel_rfCh1 = f_list[2].toInt();
@@ -650,6 +699,38 @@ PmtkAgc GPS_Listener::m_parsePmtkAgc(const QString &nmea)
 
     return agc;
 }
+
+PmtkMpe1 GPS_Listener::m_parsePmtkMpe1(const QString &nmea)
+{
+    PmtkMpe1 mpe1;
+
+    if (!nmea.startsWith("$PMTKMPE1"))
+        return mpe1;
+
+    QString line = nmea.left(nmea.indexOf('*'));
+    QStringList f_list = line.split(',');
+
+    if (f_list.size() < 17)
+        return mpe1;
+
+    mpe1.heading = f_list[1].toDouble();
+    mpe1.pitch   = f_list[2].toDouble();
+    mpe1.roll    = f_list[3].toDouble();
+    mpe1.yaw     = f_list[4].toDouble();
+
+    mpe1.vx = f_list[5].toDouble();  mpe1.vy = f_list[6].toDouble();  mpe1.vz = f_list[7].toDouble();
+    mpe1.ax = f_list[8].toDouble();  mpe1.ay = f_list[9].toDouble();  mpe1.az = f_list[10].toDouble();
+    mpe1.gx = f_list[11].toDouble();  mpe1.gy = f_list[12].toDouble();
+
+    mpe1.s1 = f_list[13].toInt();
+    mpe1.s2 = f_list[14].toInt();
+    mpe1.s3 = f_list[15].toInt();
+    mpe1.s4 = f_list[16].toInt();
+
+    mpe1.valid = true;   // sentence parsed successfully
+    return mpe1;
+}
+
 
 GllData GPS_Listener::m_parseGLL(const QString &nmea)
 {
@@ -665,15 +746,18 @@ GllData GPS_Listener::m_parseGLL(const QString &nmea)
         return gll;
 
     gll.talker = m_GetConstellationString(f_list[0].mid(1, 2));              // GP / GN
-    gll.utc = QTime::fromString(f_list[5], "hhmmss.zzz");
+
+    QTime tmpTime = QTime::fromString(f_list[5], "hhmmss.zzz");
+    gll.utc  = tmpTime.addSecs(5 * 3600 + 30 * 60);
+    //gll.utc = QTime::fromString(f_list[5], "hhmmss.zzz");
     gll.status = f_list[6].isEmpty() ? 'V' : f_list[6][0];
     gll.mode   = (f_list.size() > 7 && !f_list[7].isEmpty()) ? f_list[7][0] : 'N';
 
     gll.lat = m_parseLatLon(f_list[1], f_list[2]);
     gll.lon = m_parseLatLon(f_list[3], f_list[4]);
 
-    if (gll.status == 'A') {
-
+    if (gll.status == 'A')
+    {
         gll.valid = true;
     }
 

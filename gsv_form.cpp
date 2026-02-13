@@ -30,11 +30,13 @@ void GSV_Form::m_updateConstellation(GnssSystem system, const QVector<SkySat> &s
 QColor GSV_Form::m_colorForSystem(GnssSystem sys) const
 {
     switch (sys) {
-    case GnssSystem::GPS:      return QColor(250, 128, 114);
-    case GnssSystem::GLONASS:  return QColor(93, 63, 211);
-    case GnssSystem::BEIDOU:   return Qt::green;
-    case GnssSystem::GALILEO:  return QColor(128, 0, 128);
-    default:                  return Qt::gray;
+    case GnssSystem::GPS:           return QColor(250, 128, 114);
+    case GnssSystem::GLONASS:       return QColor(93, 63, 211);
+    case GnssSystem::BEIDOU:        return QColor(0, 153, 0);
+    case GnssSystem::GALILEO:       return QColor(128, 0, 128);
+    case GnssSystem::QZSS:          return QColor(102, 255, 255);
+    case GnssSystem::IRNSS_NAVIC:   return QColor(255, 255, 51);
+    default:                        return Qt::gray;
     }
 }
 
@@ -130,7 +132,9 @@ void GSV_Form::m_drawLegend(QPainter &p, const QPointF &topLeft)
         { "GPS",      m_colorForSystem(GnssSystem::GPS) },
         { "GLONASS",  m_colorForSystem(GnssSystem::GLONASS) },
         { "BEIDOU",   m_colorForSystem(GnssSystem::BEIDOU) },
-        { "GALILEO",  m_colorForSystem(GnssSystem::GALILEO) }
+        { "GALILEO",  m_colorForSystem(GnssSystem::GALILEO) },
+        { "QZSS",  m_colorForSystem(GnssSystem::QZSS) },
+        { "IRNSS/NAVIC",  m_colorForSystem(GnssSystem::IRNSS_NAVIC) }
     };
 
     QPointF pos = topLeft;

@@ -49,6 +49,14 @@ struct RmcData
     bool valid = false;
 };
 
+enum class PmtkClass {
+    Ignore,      // silent
+    Info,        // low importance
+    Diagnostic,  // health metrics
+    Error        // actionable problem
+};
+
+
 struct PmtkPos1
 {
     QDateTime utc;
@@ -82,6 +90,22 @@ struct PmtkAgc
     int agcLevel_rfCh4 = 0;
     int rfState = 0;
     int avgSignal = 0;
+    bool valid = false;
+};
+
+struct PmtkMpe1
+{
+    double heading = 0.0;
+    double pitch = 0.0;
+    double roll = 0.0;
+    double yaw = 0.0;
+
+    double vx = 0.0, vy = 0.0, vz = 0.0;
+    double ax = 0.0, ay = 0.0, az = 0.0;
+    double gx = 0.0, gy = 0.0;
+
+    int s1 = 0, s2 = 0, s3 = 0, s4 = 0;
+
     bool valid = false;
 };
 
@@ -123,6 +147,8 @@ enum class GnssSystem {
     GLONASS,
     BEIDOU,
     GALILEO,
+    QZSS,
+    IRNSS_NAVIC,
     UNKNOWN
 };
 
@@ -135,7 +161,5 @@ struct SkySat
     double snr = 0.0;       // optional
     QElapsedTimer lastSeen;
 };
-
-
 
 #endif // STRUCTDATA_H
