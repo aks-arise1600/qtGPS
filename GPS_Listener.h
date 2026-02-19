@@ -20,6 +20,7 @@ class GPS_Listener : public QObject
 public:
     GPS_Listener(QObject *parent = nullptr);
     ~GPS_Listener();
+
 private slots:
     void sl_positionUpdated(const QGeoPositionInfo &info);
     void sl_onError(QGeoPositionInfoSource::Error error);
@@ -39,7 +40,10 @@ signals:
     void si_gllData(GllData);
     void si_vtgData(VtgData);
     void si_skyPlot(GnssSystem, QVector<SkySat>);
+    void si_mtkmpe1(PmtkMpe1);
 private:
+    bool m_isValidChecksum(const QByteArray &sentence);
+    void m_parseNMEA_Sentence(QString nmea_data);
     QGeoPositionInfoSource *source;
     QString m_gpsLogFile();
     QString strLogFile;

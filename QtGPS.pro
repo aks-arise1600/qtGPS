@@ -1,4 +1,4 @@
-QT       += core gui positioning
+QT       += core gui positioning network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     GPS_Listener.cpp \
+    device_info.cpp \
     gsv_form.cpp \
     main.cpp \
     gpswindow.cpp
@@ -17,6 +18,7 @@ SOURCES += \
 HEADERS += \
     GPS_Listener.h \
     StructData.h \
+    device_info.h \
     gpswindow.h \
     gsv_form.h
 
@@ -31,10 +33,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+android: include(/home/anil_system2/Android/Sdk/android_openssl/openssl.pri)
+
 
 DISTFILES += \
     android/AndroidManifest.xml \
-    android/src/org/example/gps/NmeaListener.java
+    android/src/org/example/gps/NmeaListener.java \
+    android/src/org/example/gps/DeviceInfo.java
 
 RESOURCES += \
     icons_resources.qrc

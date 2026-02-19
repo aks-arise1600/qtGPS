@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <GPS_Listener.h>
 #include <gsv_form.h>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonObject>
+#include <device_info.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,8 +22,10 @@ class gpsWindow : public QMainWindow
 public:
     gpsWindow(QWidget *parent = nullptr);
     ~gpsWindow();
+    void m_postData(const QString &serverUrl, QJsonObject payload);
 private slots:
     void sl_Positions(gps_pos gData );
+    void sl_DeviceInfo();
     void on_pushButton_Close_clicked();
     void sl_error_msg(QString msg);
     void sl_gnAccuracy(double hAcc,double vAcc,double sAcc,double bAcc);
@@ -31,9 +37,12 @@ private slots:
     void sl_gllData(GllData gll);
     void sl_vtgData(VtgData vtg);
     void sl_skyPlot(GnssSystem gSys, QVector<SkySat> listSkySat);
+    void sl_mtkmpe1(PmtkMpe1 mtk_mpe1);
 private:
     Ui::gpsWindow *ui;
     GPS_Listener * obj_gps;
     GSV_Form *obj_skyPlot;
+    int iCount = 0;
+    Device_Info *obj_devInfo = nullptr;
 };
 #endif // GPSWINDOW_H

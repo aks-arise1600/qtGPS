@@ -8,6 +8,8 @@ gpsWindow::gpsWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowIcon(QIcon(":/icons/compass.png"));
 
+    ui->tabWidget->setCurrentIndex(2);
+
     ui->tableWidget_GNACCURACY->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_QgpsPos->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_gga->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -17,12 +19,15 @@ gpsWindow::gpsWindow(QWidget *parent)
     ui->tableWidget_mtkagc->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_gll->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_vtg->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget_mtkmpe1->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     ui->tableWidget_GNACCURACY->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_rmc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_mtkpos1->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_mtkpos2->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_mtkagc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableWidget_mtkmpe1->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 
     obj_gps = new GPS_Listener(this);
@@ -37,10 +42,15 @@ gpsWindow::gpsWindow(QWidget *parent)
     connect(obj_gps,SIGNAL(si_gllData(GllData)),this, SLOT(sl_gllData(GllData)));
     connect(obj_gps,SIGNAL(si_vtgData(VtgData)),this, SLOT(sl_vtgData(VtgData)));
     connect(obj_gps,SIGNAL(si_skyPlot(GnssSystem, QVector<SkySat>)),this, SLOT(sl_skyPlot(GnssSystem, QVector<SkySat>)));
+    connect(obj_gps,SIGNAL(si_mtkmpe1(PmtkMpe1)),this, SLOT(sl_mtkmpe1(PmtkMpe1)));
+
 
     obj_skyPlot = new GSV_Form(this);
     ui->skyPlotLayout->addWidget(obj_skyPlot);
 
+    obj_devInfo = new Device_Info;
+
+    QTimer::singleShot(1000,this,SLOT(sl_DeviceInfo()));
 }
 
 gpsWindow::~gpsWindow()
@@ -48,13 +58,94 @@ gpsWindow::~gpsWindow()
     delete ui;
 }
 
+void gpsWindow::m_postData(const QString &serverUrl, QJsonObject payload)
+{
+    qDebug()<<__FUNCTION__;
+    static QNetworkAccessManager manager;
+
+    QUrl url(serverUrl); // e.g. http://localhost:8080/api/send_location
+    QNetworkRequest request(url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/json");
+
+    QByteArray data =
+        QJsonDocument(payload).toJson(QJsonDocument::Compact);
+
+    QNetworkReply *reply = manager.post(request, data);
+
+    QObject::connect(reply, &QNetworkReply::finished,
+                     [reply]() {
+                         if (reply->error() == QNetworkReply::NoError) {
+                             qDebug() << "POST success:"
+                                      << reply->readAll();
+                         } else {
+                             qWarning() << "POST failed:"
+                                        << reply->errorString();
+                         }
+                         reply->deleteLater();
+                     });
+}
+
+
 void gpsWindow::sl_Positions(gps_pos gData)
 {
     ui->tableWidget_QgpsPos->setItem(0, 1, new QTableWidgetItem(QString::number(gData.lat)));
     ui->tableWidget_QgpsPos->setItem(1, 1, new QTableWidgetItem(QString::number(gData.lon)));
-    ui->tableWidget_QgpsPos->setItem(2, 1, new QTableWidgetItem(QString::number(gData.speed)));
-    ui->tableWidget_QgpsPos->setItem(3, 1, new QTableWidgetItem(QString::number(gData.acc)));
+    ui->tableWidget_QgpsPos->setItem(2, 1, new QTableWidgetItem(QString::number(gData.alt)));
+    ui->tableWidget_QgpsPos->setItem(3, 1, new QTableWidgetItem(QString::number(gData.speed)));
+    ui->tableWidget_QgpsPos->setItem(4, 1, new QTableWidgetItem(QString::number(gData.acc)));
 
+    // JSON payload
+    QJsonObject payload {
+        {"utc", QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")},
+        {"lat", gData.lat},
+        {"lon", gData.lon},
+        {"alt", gData.alt},
+        {"dev_id", (obj_devInfo?obj_devInfo->m_androidDeviceId():"ARISE1600")}
+    };
+
+    if(iCount%5 == 0)
+    {
+        m_postData("https://gpshttpserver.onrender.com/api/send_location",payload);
+        qDebug ()<<"Trying...";
+        if(iCount>4000)
+            iCount = 1;
+    }
+    iCount++;
+
+}
+
+void gpsWindow::sl_DeviceInfo()
+{
+    DeviceInfoData diData;
+    diData.board = obj_devInfo->m_androidBoard();
+    diData.product = obj_devInfo->m_androidProduct();
+    diData.manufacturer = obj_devInfo->m_androidManufacturer();
+    diData.model = obj_devInfo->m_androidModel();
+    diData.android_id = obj_devInfo->m_androidId();
+    diData.dev_id = obj_devInfo->m_androidDeviceId();
+
+
+    qDebug() << "Board:"        << diData.board;
+    qDebug() << "Product:"      << diData.product;
+    qDebug() << "Manufacturer:" << diData.manufacturer;
+    qDebug() << "Model:"        << diData.model;
+    qDebug() << "Android ID:"   << diData.android_id;
+    qDebug() << "Device ID:"    << diData.dev_id;
+
+    // JSON payload
+    QJsonObject payload {
+        {"utc", QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")},
+        {"board", diData.board},
+        {"product", diData.product},
+        {"manufacturer", diData.manufacturer},
+        {"android_id", diData.android_id},
+        {"model", diData.model},
+        {"dev_id", diData.dev_id}
+    };
+
+    m_postData("https://gpshttpserver.onrender.com/api/send_devinfo",payload);
 }
 
 void gpsWindow::on_pushButton_Close_clicked()
@@ -172,5 +263,27 @@ void gpsWindow::sl_vtgData(VtgData vtg)
 void gpsWindow::sl_skyPlot(GnssSystem gSys, QVector<SkySat> listSkySat)
 {
     obj_skyPlot->m_updateConstellation(gSys,listSkySat);
+}
+
+void gpsWindow::sl_mtkmpe1(PmtkMpe1 mtk_mpe1)
+{
+    ui->tableWidget_mtkmpe1->setItem(0, 1, new QTableWidgetItem(QString::number(mtk_mpe1.heading,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(1, 1, new QTableWidgetItem(QString::number(mtk_mpe1.roll,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(2, 1, new QTableWidgetItem(QString::number(mtk_mpe1.pitch,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(3, 1, new QTableWidgetItem(QString::number(mtk_mpe1.yaw,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(4, 1, new QTableWidgetItem(QString::number(mtk_mpe1.vx,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(5, 1, new QTableWidgetItem(QString::number(mtk_mpe1.vy,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(6, 1, new QTableWidgetItem(QString::number(mtk_mpe1.vz,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(7, 1, new QTableWidgetItem(QString::number(mtk_mpe1.ax,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(8, 1, new QTableWidgetItem(QString::number(mtk_mpe1.ay,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(9, 1, new QTableWidgetItem(QString::number(mtk_mpe1.az,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(10, 1, new QTableWidgetItem(QString::number(mtk_mpe1.gx,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(11, 1, new QTableWidgetItem(QString::number(mtk_mpe1.gy,'f', 2)));
+    ui->tableWidget_mtkmpe1->setItem(12, 1, new QTableWidgetItem(QString::number(mtk_mpe1.s1)));
+    ui->tableWidget_mtkmpe1->setItem(13, 1, new QTableWidgetItem(QString::number(mtk_mpe1.s2)));
+    ui->tableWidget_mtkmpe1->setItem(14, 1, new QTableWidgetItem(QString::number(mtk_mpe1.s3)));
+    ui->tableWidget_mtkmpe1->setItem(15, 1, new QTableWidgetItem(QString::number(mtk_mpe1.s4)));
+    ui->tableWidget_mtkmpe1->setItem(16, 1, new QTableWidgetItem(mtk_mpe1.valid?"TRUE":"FALSE"));
+
 }
 

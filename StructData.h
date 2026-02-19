@@ -10,6 +10,7 @@ struct gps_pos
 {
     double lat;
     double lon;
+    double alt = 0.0;
     double speed;
     double acc;
 };

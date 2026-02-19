@@ -60,19 +60,24 @@ GPS_Listener::~GPS_Listener()
         g_gpsListener = nullptr;
 }
 
-
 void GPS_Listener::sl_positionUpdated(const QGeoPositionInfo &info)
 {
-    if (!info.isValid()) return;
+    if (!info.isValid())
+    {
+        qDebug()<<"Inavlid Info";
+        return;
+    }
     gps_pos obj_gpsData;
 
     obj_gpsData.lat = info.coordinate().latitude();
     obj_gpsData.lon = info.coordinate().longitude();
+    obj_gpsData.alt = info.coordinate().altitude();
     obj_gpsData.speed = info.attribute(QGeoPositionInfo::GroundSpeed); // m/s
     obj_gpsData.acc = info.attribute(QGeoPositionInfo::HorizontalAccuracy) *3.6;
 
     qDebug() << "Lat:" << obj_gpsData.lat
              << "Lon:" << obj_gpsData.lon
+             << "Alt:" << obj_gpsData.alt
              << "Speed(km/h):" << obj_gpsData.speed
              << "Accuracy(m):" << obj_gpsData.acc;
 
@@ -158,6 +163,31 @@ void GPS_Listener::sl_stopNmeaListener()
 #endif
 }
 
+bool GPS_Listener::m_isValidChecksum(const QByteArray &sentence)
+{
+    // sentence must start with '$' and contain '*'
+    int star = sentence.indexOf('*');
+    if (sentence.isEmpty() || sentence[0] != '$' || star < 0)
+        return false;
+
+    // Need exactly 2 hex chars after '*'
+    if (sentence.size() < star + 3)
+        return false;
+
+    quint8 checksum = 0;
+
+    // XOR from after '$' up to before '*'
+    for (int i = 1; i < star; ++i)
+        checksum ^= static_cast<quint8>(sentence[i]);
+
+    bool ok = false;
+    quint8 sent =
+        sentence.mid(star + 1, 2).toUInt(&ok, 16);
+
+    return ok && (checksum == sent);
+}
+
+
 void GPS_Listener::NMEAData_Received(const QString &nmea_data)
 {
     /**
@@ -168,6 +198,50 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
      *  $GLGSV,total_msgs,msg_num,sats_in_view,...
      *
      *  **/
+
+    static QByteArray buffer ;
+    buffer.append(nmea_data.toLatin1());
+
+    while (true)
+    {
+        int start = buffer.indexOf('$');
+        if (start < 0) {
+            buffer.clear();
+            return;
+        }
+
+        if (start > 0)
+            buffer.remove(0, start);
+
+        int star = buffer.indexOf('*');
+        if (star < 0)
+            return;
+
+        if (buffer.size() < star + 3)
+            return;
+
+        QByteArray sentence = buffer.left(star + 3);
+        buffer.remove(0, star + 3);
+
+        // CHECKSUM VALIDATION
+        if (!m_isValidChecksum(sentence))
+        {
+            qWarning() << "Bad checksum:" << sentence;
+            continue;   // DROP corrupt packet
+        }
+
+        QString str_nmea = QString::fromLatin1(sentence);
+        str_nmea.remove('\r');
+        str_nmea.remove('\n');
+
+        m_parseNMEA_Sentence(str_nmea);
+    }
+
+    qDebug()<<"buffer"<<buffer;
+}
+
+void GPS_Listener::m_parseNMEA_Sentence(QString nmea_data)
+{
     // Example filtering
     if (nmea_data.startsWith("$GNACCURACY"))
     {
@@ -281,13 +355,15 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
                      << "ax:"<<mpe1.ax << "ay:"<<mpe1.ay << "az:"<<mpe1.az
                      << "gx:"<<mpe1.gx << "gy:"<<mpe1.gy << "s1:"<< mpe1.s1
                      << "s2:"<< mpe1.s2 << "s3:"<< mpe1.s3 << "s4:"<< mpe1.s4;
+
+            emit si_mtkmpe1(mpe1);
         }
         else
-            qDebug() << "Proprietary NMEA:" << nmea_data.trimmed();
+            qDebug() << "MTK (Proprietary NMEA):" << nmea_data.trimmed();
     }
     else if (nmea_data.startsWith("$GPGSV") || nmea_data.startsWith("$GLGSV") ||
-        nmea_data.startsWith("$GAGSV") || nmea_data.startsWith("$GBGSV") ||
-        nmea_data.startsWith("$GNGSV"))
+             nmea_data.startsWith("$GAGSV") || nmea_data.startsWith("$GBGSV") ||
+             nmea_data.startsWith("$GNGSV"))
     {
         qDebug() << "GSV:" << nmea_data;
         m_handleGSV(nmea_data);
@@ -338,7 +414,7 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
     if(nmea_data.size())
     {
         emit si_error_msg(nmea_data);
-         QFile file(strLogFile);
+        QFile file(strLogFile);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Append))
         {
             qWarning() << "Failed to open file:" << file.errorString();
@@ -356,6 +432,7 @@ void GPS_Listener::NMEAData_Received(const QString &nmea_data)
         file.flush();
         file.close();
     }
+
 }
 double GPS_Listener::m_parseLatLon(const QString &value, const QString &dir)
 {
