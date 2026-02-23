@@ -30,12 +30,12 @@ void GSV_Form::m_updateConstellation(GnssSystem system, const QVector<SkySat> &s
 QColor GSV_Form::m_colorForSystem(GnssSystem sys) const
 {
     switch (sys) {
-    case GnssSystem::GPS:           return QColor(250, 128, 114);
+    case GnssSystem::GPS:           return QColor(250, 128, 0);
     case GnssSystem::GLONASS:       return QColor(93, 63, 211);
-    case GnssSystem::BEIDOU:        return QColor(0, 153, 0);
+    case GnssSystem::BEIDOU:        return QColor(0, 200, 15);
     case GnssSystem::GALILEO:       return QColor(128, 0, 128);
-    case GnssSystem::QZSS:          return QColor(102, 255, 255);
-    case GnssSystem::IRNSS_NAVIC:   return QColor(255, 255, 51);
+    case GnssSystem::QZSS:          return QColor(0, 255, 255);
+    case GnssSystem::IRNSS_NAVIC:   return QColor(255, 255, 0);
     default:                        return Qt::gray;
     }
 }
@@ -100,7 +100,8 @@ void GSV_Form::paintEvent(QPaintEvent *)
         }
     }
 
-    m_drawLegend(p, QPointF(10, 10));
+    //m_drawLegend(p, QPointF(10, 10));
+    m_drawLegend(p);
 }
 
 void GSV_Form::m_purgeStaleSatellites(int maxAgeMs)
@@ -117,7 +118,77 @@ void GSV_Form::m_purgeStaleSatellites(int maxAgeMs)
 }
 
 
-void GSV_Form::m_drawLegend(QPainter &p, const QPointF &topLeft)
+void GSV_Form::m_drawLegend(QPainter &p)
+{
+    const int boxSize   = 10;
+    const int spacing   = 6;
+    const int lineHeight = 18;
+    const int margin    = 10;
+
+    struct LegendItem {
+        QString label;
+        QColor color;
+    };
+
+    QVector<LegendItem> items = {
+        { "GPS",           m_colorForSystem(GnssSystem::GPS) },
+        { "GLONASS",       m_colorForSystem(GnssSystem::GLONASS) },
+        { "BEIDOU",        m_colorForSystem(GnssSystem::BEIDOU) },
+        { "GALILEO",       m_colorForSystem(GnssSystem::GALILEO) },
+        { "QZSS",          m_colorForSystem(GnssSystem::QZSS) },
+        { "IRNSS (NavIC)", m_colorForSystem(GnssSystem::IRNSS_NAVIC) }
+    };
+
+    // --- Legend size ---
+    const qreal legendWidth  = 180;
+    const qreal legendHeight = items.size() * lineHeight + 8;
+
+    // --- Top-right anchor ---
+    QRectF bg(
+        width() - legendWidth - margin,
+        margin,
+        legendWidth,
+        legendHeight
+        );
+
+    // --- Background ---
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0, 0, 0, 160));
+    p.drawRoundedRect(bg, 6, 6);
+
+    QPen boxPen(Qt::white);
+    boxPen.setWidth(1);
+
+    QFontMetrics fm(p.font());
+
+    qreal y = bg.top() + 8;
+
+    // --- Legend rows ---
+    for (const auto &item : items)
+    {
+        // Box position (fixed to right)
+        qreal boxX = bg.right() - 8 - boxSize;
+        qreal boxY = y + 4;
+
+        // Text position (right-aligned before box)
+        int textWidth = fm.horizontalAdvance(item.label);
+        qreal textX = boxX - spacing - textWidth;
+        qreal textY = y + boxSize + 2;
+
+        // Draw text
+        p.setPen(Qt::white);
+        p.drawText(QPointF(textX, textY), item.label);
+
+        // Draw color box
+        p.setPen(boxPen);
+        p.setBrush(item.color);
+        p.drawRect(QRectF(boxX, boxY, boxSize, boxSize));
+
+        y += lineHeight;
+    }
+}
+    /*
+    m_drawLegend(QPainter &p, const QPointF &topLeft)
 {
     const int boxSize = 10;
     const int spacing = 6;
@@ -134,7 +205,7 @@ void GSV_Form::m_drawLegend(QPainter &p, const QPointF &topLeft)
         { "BEIDOU",   m_colorForSystem(GnssSystem::BEIDOU) },
         { "GALILEO",  m_colorForSystem(GnssSystem::GALILEO) },
         { "QZSS",  m_colorForSystem(GnssSystem::QZSS) },
-        { "IRNSS/NAVIC",  m_colorForSystem(GnssSystem::IRNSS_NAVIC) }
+        { "IRNSS(NavIC)",  m_colorForSystem(GnssSystem::IRNSS_NAVIC) }
     };
 
     QPointF pos = topLeft;
@@ -171,3 +242,4 @@ void GSV_Form::m_drawLegend(QPainter &p, const QPointF &topLeft)
     }
 
 }
+*/

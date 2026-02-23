@@ -25,8 +25,8 @@ private:
     QMap<GnssSystem, QMap<int, SkySat>> m_sats;
     QColor m_colorForSystem(GnssSystem sys) const;
     void m_purgeStaleSatellites(int maxAgeMs = 15000);
-    void m_drawLegend(QPainter &p, const QPointF &topLeft);
-
+    // void m_drawLegend(QPainter &p, const QPointF &topLeft);
+    void m_drawLegend(QPainter &p);
 };
 
 #endif // GSV_FORM_H
