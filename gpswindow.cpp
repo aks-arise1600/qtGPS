@@ -8,6 +8,9 @@ gpsWindow::gpsWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowIcon(QIcon(":/icons/compass.png"));
 
+    obj_devInfo = new Device_Info;
+    obj_devInfo->m_requestPhonePermission();
+
     ui->tabWidget->setCurrentIndex(2);
 
     ui->tableWidget_GNACCURACY->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -48,9 +51,9 @@ gpsWindow::gpsWindow(QWidget *parent)
     obj_skyPlot = new GSV_Form(this);
     ui->skyPlotLayout->addWidget(obj_skyPlot);
 
-    obj_devInfo = new Device_Info;
 
-    QTimer::singleShot(1000,this,SLOT(sl_DeviceInfo()));
+
+    QTimer::singleShot(5000,this,SLOT(sl_DeviceInfo()));
 }
 
 gpsWindow::~gpsWindow()
@@ -118,13 +121,32 @@ void gpsWindow::sl_Positions(gps_pos gData)
 
 void gpsWindow::sl_DeviceInfo()
 {
-    DeviceInfoData diData;
     diData.board = obj_devInfo->m_androidBoard();
     diData.product = obj_devInfo->m_androidProduct();
     diData.manufacturer = obj_devInfo->m_androidManufacturer();
     diData.model = obj_devInfo->m_androidModel();
     diData.android_id = obj_devInfo->m_androidId();
     diData.dev_id = obj_devInfo->m_androidDeviceId();
+    diData.brand = obj_devInfo->m_getBrand();
+    diData.device = obj_devInfo->m_getDevice();
+    diData.hardware = obj_devInfo->m_getHardware();
+    diData.android_ver = obj_devInfo->m_getAndroidVersion();
+    diData.IMEI = obj_devInfo->m_getIMEI();
+
+    qDebug() << obj_devInfo->m_printSimInfo();
+
+
+    ui->label_AndroidID->setText(diData.android_id);
+    ui->label_DevID->setText(diData.dev_id);
+    ui->label_board->setText(diData.board);
+    ui->label_manufacturer->setText(diData.manufacturer);
+    ui->label_model->setText(diData.model);
+    ui->label_product->setText(diData.product);
+
+    ui->label_device->setText(diData.device);
+    ui->label_brand->setText(diData.brand);
+    ui->label_hw->setText(diData.hardware);
+    ui->label_AndroidVer->setText(diData.android_ver);
 
 
     qDebug() << "Board:"        << diData.board;
@@ -133,6 +155,12 @@ void gpsWindow::sl_DeviceInfo()
     qDebug() << "Model:"        << diData.model;
     qDebug() << "Android ID:"   << diData.android_id;
     qDebug() << "Device ID:"    << diData.dev_id;
+    qDebug() << "Device :"    << diData.device;
+    qDebug() << "Brand :"    << diData.brand;
+    qDebug() << "Hardware :"    << diData.hardware;
+    qDebug() << "IMEI :"    << diData.IMEI;
+
+
 
     // JSON payload
     QJsonObject payload {

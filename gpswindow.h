@@ -44,5 +44,7 @@ private:
     GSV_Form *obj_skyPlot;
     int iCount = 0;
     Device_Info *obj_devInfo = nullptr;
+    DeviceInfoData diData;
+
 };
 #endif // GPSWINDOW_H

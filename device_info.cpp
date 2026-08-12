@@ -113,4 +113,143 @@ QString Device_Info::m_androidDeviceId()
 #endif
 }
 
+QString Device_Info::m_getBrand()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return QString();
 
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "getBrand",
+            "()Ljava/lang/String;"
+            );
+
+    return obj.toString();
+#else
+    return QString();
+#endif
+}
+
+QString Device_Info::m_getDevice()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return QString();
+
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "getDevice",
+            "()Ljava/lang/String;"
+            );
+
+    return obj.toString();
+#else
+    return QString();
+#endif
+}
+
+QString Device_Info::m_getHardware()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return QString();
+
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "getHardware",
+            "()Ljava/lang/String;"
+            );
+
+    return obj.toString();
+#else
+    return QString();
+#endif
+}
+
+QString Device_Info::m_getAndroidVersion()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return QString();
+
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "getAndroidVersion",
+            "()Ljava/lang/String;"
+            );
+
+    return obj.toString();
+#else
+    return QString();
+#endif
+}
+
+QString Device_Info::m_getIMEI()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return QString();
+
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "getIMEI",
+            "(Landroid/content/Context;)Ljava/lang/String;",
+            activity.object<jobject>()
+            );
+
+    return obj.toString();
+#else
+    return QString();
+#endif
+}
+
+QString Device_Info::m_printSimInfo()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return "";
+
+    QJniObject obj =
+        QJniObject::callStaticObjectMethod(
+            "org/example/gps/DeviceInfo",
+            "printSimInfo",
+            "(Landroid/content/Context;)Ljava/lang/String;",
+            activity.object<jobject>()
+            );
+
+    return obj.toString();
+#else
+    return "";
+#endif
+}
+
+void Device_Info::m_requestPhonePermission()
+{
+#ifdef Q_OS_ANDROID
+    QJniObject activity = m_getActivity();
+    if (!activity.isValid())
+        return ;
+
+    QJniObject::callStaticMethod<void>(
+        "org/example/gps/DeviceInfo",
+        "requestPhonePermission",
+        "(Landroid/app/Activity;)V",
+        activity.object<jobject>());
+
+    return ;
+#else
+    return ;
+#endif
+}

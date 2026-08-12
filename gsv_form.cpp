@@ -100,7 +100,6 @@ void GSV_Form::paintEvent(QPaintEvent *)
         }
     }
 
-    //m_drawLegend(p, QPointF(10, 10));
     m_drawLegend(p);
 }
 
@@ -187,59 +186,4 @@ void GSV_Form::m_drawLegend(QPainter &p)
         y += lineHeight;
     }
 }
-    /*
-    m_drawLegend(QPainter &p, const QPointF &topLeft)
-{
-    const int boxSize = 10;
-    const int spacing = 6;
-    const int lineHeight = 18;
 
-    struct LegendItem {
-        QString label;
-        QColor color;
-    };
-
-    QVector<LegendItem> items = {
-        { "GPS",      m_colorForSystem(GnssSystem::GPS) },
-        { "GLONASS",  m_colorForSystem(GnssSystem::GLONASS) },
-        { "BEIDOU",   m_colorForSystem(GnssSystem::BEIDOU) },
-        { "GALILEO",  m_colorForSystem(GnssSystem::GALILEO) },
-        { "QZSS",  m_colorForSystem(GnssSystem::QZSS) },
-        { "IRNSS(NavIC)",  m_colorForSystem(GnssSystem::IRNSS_NAVIC) }
-    };
-
-    QPointF pos = topLeft;
-
-    // Background
-    QRectF bg(pos.x() - 6, pos.y() - 6,
-              120, items.size() * lineHeight + 8);
-
-    p.setPen(Qt::NoPen);
-    p.setBrush(QColor(0, 0, 0, 160)); // semi-transparent
-    p.drawRoundedRect(bg, 6, 6);
-
-    QPen boxPen(Qt::white);
-    boxPen.setWidth(1);
-
-    // Legend items
-    for (const auto &item : items)
-    {
-        p.setPen(boxPen);
-        p.setBrush(item.color);
-
-        p.drawRect(QRectF(pos.x(),
-                          pos.y() + 4,
-                          boxSize,
-                          boxSize));
-
-        // Text
-        p.setPen(Qt::white);
-        p.drawText(QPointF(pos.x() + boxSize + spacing,
-                           pos.y() + boxSize + 2),
-                   item.label);
-
-        pos.ry() += lineHeight;
-    }
-
-}
-*/
